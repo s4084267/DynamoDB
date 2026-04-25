@@ -76,12 +76,18 @@ def analyze_songs(songs):
 
 
 def connect_table():
-	resource = boto3.resource(
-		"dynamodb",
-		endpoint_url="http://localhost:8000",
-		region_name="us-east-1",
-	)
+	# Create DynamoDB resource (local)
+	# resource = boto3.resource(
+	# 	"dynamodb",
+	# 	endpoint_url="http://localhost:8000",
+	# 	region_name="us-east-1",
+	# )
+
+	# Create DynamoDB resource (AWS)
+	resource = boto3.resource("dynamodb", region_name="us-east-1")
+
 	return resource.Table(TABLE_NAME)
+
 
 
 def validate_table_schema(table):
