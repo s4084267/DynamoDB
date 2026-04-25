@@ -5,14 +5,14 @@ import bcrypt
 TABLE_NAME = "Login"
 
 # Create DynamoDB client (local)
-# client = boto3.client(
-#     'dynamodb',
-#     endpoint_url="http://localhost:8000",
-#     region_name="us-east-1"
-# )
+client = boto3.client(
+    'dynamodb',
+    endpoint_url="http://localhost:8000",
+    region_name="us-east-1"
+)
 
 # Create DynamoDB client (AWS)
-client = boto3.client('dynamodb', region_name="us-east-1")
+# client = boto3.client('dynamodb', region_name="us-east-1")
 
 def expected_key_schema():
     return [

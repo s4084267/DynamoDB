@@ -36,7 +36,7 @@ def load_songs(file_path):
 
 
 def make_song_key(title, album):
-	# Length-prefixed format avoids delimiter-collision ambiguity.
+	# concatenate the title and album with their lengths to make it unique
 	return f"{len(title)}:{title}{len(album)}:{album}"
 
 
@@ -77,14 +77,14 @@ def analyze_songs(songs):
 
 def connect_table():
 	# Create DynamoDB resource (local)
-	# resource = boto3.resource(
-	# 	"dynamodb",
-	# 	endpoint_url="http://localhost:8000",
-	# 	region_name="us-east-1",
-	# )
+	resource = boto3.resource(
+		"dynamodb",
+		endpoint_url="http://localhost:8000",
+		region_name="us-east-1",
+	)
 
 	# Create DynamoDB resource (AWS)
-	resource = boto3.resource("dynamodb", region_name="us-east-1")
+	# resource = boto3.resource("dynamodb", region_name="us-east-1")
 
 	return resource.Table(TABLE_NAME)
 
@@ -130,7 +130,7 @@ def import_songs(table, songs):
 		}
 
 		try:
-			# Conditional write guarantees no accidental overwrite of existing items.
+			#to prevent accidental overwrite of existing items if the script is run multiple times without clearing the table
 			table.put_item(
 				Item=item,
 				ConditionExpression="attribute_not_exists(artist) AND attribute_not_exists(song_key)",
