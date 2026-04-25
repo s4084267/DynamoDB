@@ -21,13 +21,27 @@ def expected_key_schema():
 
 
 def initialize_table():
+
     table_definition = {
-        "TableName": TABLE_NAME,
-        "KeySchema": expected_key_schema(),
+        "TableName": "Login",
+        "BillingMode": "PAY_PER_REQUEST",
         "AttributeDefinitions": [
-            {"AttributeName": "email", "AttributeType": "S"}
+            {"AttributeName": "email", "AttributeType": "S"},
+            {"AttributeName": "username", "AttributeType": "S"}
         ],
-        "BillingMode": "PAY_PER_REQUEST"
+        "KeySchema": [
+            {"AttributeName": "email", "KeyType": "HASH"}
+        ],
+        "GlobalSecondaryIndexes": [
+            {
+                # Allows users to eventually log in with EITHER email or username.
+                "IndexName": "UsernameIndex",
+                "KeySchema": [
+                    {"AttributeName": "username", "KeyType": "HASH"}
+                ],
+                "Projection": {"ProjectionType": "ALL"}
+            }
+        ]
     }
 
     try:
@@ -73,10 +87,14 @@ def populate_table():
 
     for item in items:
         print(f"Adding item: {item['email']['S']}")
-        client.put_item(
-            TableName=TABLE_NAME,
-            Item=item
-        )
+        try:
+            client.put_item(
+                TableName=TABLE_NAME,
+                Item=item,
+                ConditionExpression="attribute_not_exists(email)"
+            )
+        except client.exceptions.ConditionalCheckFailedException:
+            print(f"  -> Skipped: User {item['email']['S']} already exists.")
 
 
 if __name__ == "__main__":
